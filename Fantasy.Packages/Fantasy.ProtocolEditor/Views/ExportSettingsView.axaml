@@ -1,0 +1,167 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Fantasy.ProtocolEditor.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="Fantasy.ProtocolEditor.Views.ExportSettingsView"
+             x:DataType="vm:ExportSettingsViewModel"
+             Background="#1E1E1E">
+
+    <Grid RowDefinitions="Auto,*" Margin="10">
+        <!-- 顶部工具栏 -->
+        <Border Grid.Row="0" Background="#2D2D30" CornerRadius="4" Padding="10" Margin="0,0,0,10">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0"
+                           Text="协议导出配置"
+                           FontSize="16"
+                           FontWeight="Bold"
+                           Foreground="#FFFFFF"
+                           VerticalAlignment="Center"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                    <TextBlock Text="{Binding SaveMessage}"
+                               FontSize="12"
+                               Foreground="#4CAF50"
+                               VerticalAlignment="Center"
+                               Margin="0,0,10,0"/>
+                    <Button Content="保存"
+                            Command="{Binding SaveConfigCommand}"
+                            IsEnabled="{Binding IsModified}"
+                            Background="#007ACC"
+                            Foreground="White"
+                            Padding="15,5"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- 主内容区 -->
+        <ScrollViewer Grid.Row="1" AllowAutoHide="False">
+            <ScrollViewer.Styles>
+                <Style Selector="ScrollBar">
+                    <Setter Property="Opacity" Value="1"/>
+                    <Setter Property="Transitions" Value="{x:Null}"/>
+                </Style>
+                <Style Selector="ScrollBar:vertical">
+                    <Setter Property="Transitions" Value="{x:Null}"/>
+                </Style>
+                <Style Selector="ScrollBar:horizontal">
+                    <Setter Property="Transitions" Value="{x:Null}"/>
+                </Style>
+            </ScrollViewer.Styles>
+            <StackPanel Margin="10" Spacing="15">
+
+            <!-- 工作区路径（只读） -->
+            <StackPanel Spacing="5">
+                <TextBlock Text="协议目录（工作区路径）"
+                           FontWeight="SemiBold"
+                           Foreground="#CCCCCC"/>
+                <Border Background="#252526"
+                        BorderBrush="#3E3E42"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        Padding="10">
+                    <TextBlock Text="{Binding WorkspacePath}"
+                               FontFamily="Consolas,Menlo,Monaco,monospace"
+                               TextWrapping="Wrap"
+                               Foreground="#858585"/>
+                </Border>
+                <TextBlock Text="💡 协议目录自动使用当前打开的工作区路径"
+                           FontSize="12"
+                           Foreground="#858585"/>
+            </StackPanel>
+
+            <Separator Background="#3E3E42"/>
+
+            <!-- 服务器配置 -->
+            <StackPanel Spacing="5">
+                <CheckBox IsChecked="{Binding ExportToServer}"
+                          Content="导出到服务器"
+                          FontWeight="SemiBold"
+                          Foreground="#CCCCCC"/>
+
+                <StackPanel Spacing="5" IsEnabled="{Binding ExportToServer}">
+                    <TextBlock Text="服务器输出目录"
+                               Foreground="#CCCCCC"/>
+                    <TextBox Text="{Binding ServerOutputDirectory}"
+                             Watermark="例如: /path/to/server/output"
+                             FontFamily="Consolas,Menlo,Monaco,monospace"
+                             Background="#252526"
+                             Foreground="#CCCCCC"
+                             BorderBrush="#3E3E42"/>
+                    <TextBlock Text="💡 服务器端生成的协议代码将保存到此目录"
+                               FontSize="12"
+                               Foreground="#858585"/>
+                </StackPanel>
+            </StackPanel>
+
+            <Separator Background="#3E3E42"/>
+
+            <!-- 客户端配置 -->
+            <StackPanel Spacing="5">
+                <CheckBox IsChecked="{Binding ExportToClient}"
+                          Content="导出到客户端"
+                          FontWeight="SemiBold"
+                          Foreground="#CCCCCC"/>
+
+                <StackPanel Spacing="5" IsEnabled="{Binding ExportToClient}">
+                    <TextBlock Text="客户端输出目录"
+                               Foreground="#CCCCCC"/>
+                    <TextBox Text="{Binding ClientOutputDirectory}"
+                             Watermark="例如: /path/to/client/output"
+                             FontFamily="Consolas,Menlo,Monaco,monospace"
+                             Background="#252526"
+                             Foreground="#CCCCCC"
+                             BorderBrush="#3E3E42"/>
+                    <TextBlock Text="💡 客户端生成的协议代码将保存到此目录"
+                               FontSize="12"
+                               Foreground="#858585"/>
+                </StackPanel>
+            </StackPanel>
+
+            <Separator Background="#3E3E42"/>
+
+            <!-- 验证状态 -->
+            <Border Background="{Binding IsValid, Converter={StaticResource BoolToValidationBackground}}"
+                    BorderBrush="{Binding IsValid, Converter={StaticResource BoolToValidationBorder}}"
+                    BorderThickness="2"
+                    CornerRadius="4"
+                    Padding="12">
+                <TextBlock Text="{Binding ValidationMessage}"
+                           TextWrapping="Wrap"
+                           FontWeight="Medium"
+                           Foreground="#FFFFFF"/>
+            </Border>
+
+            <!-- 说明 -->
+            <StackPanel Spacing="5">
+                <TextBlock Text="使用说明"
+                           FontWeight="SemiBold"
+                           Foreground="#CCCCCC"/>
+                <Border Background="#252526"
+                        BorderBrush="#3E3E42"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        Padding="12">
+                    <StackPanel Spacing="5">
+                        <TextBlock Text="1. 协议目录使用当前工作区路径，包含 Inner 和 Outer 子文件夹"
+                                   TextWrapping="Wrap"
+                                   Foreground="#858585"/>
+                        <TextBlock Text="2. 配置服务器和客户端的输出目录"
+                                   TextWrapping="Wrap"
+                                   Foreground="#858585"/>
+                        <TextBlock Text="3. 至少选择一个导出目标（服务器或客户端）"
+                                   TextWrapping="Wrap"
+                                   Foreground="#858585"/>
+                        <TextBlock Text="4. 配置会自动保存到工作区配置文件"
+                                   TextWrapping="Wrap"
+                                   Foreground="#858585"/>
+                        <TextBlock Text="5. 使用菜单「文件 → 执行导出」执行导出"
+                                   TextWrapping="Wrap"
+                                   Foreground="#858585"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

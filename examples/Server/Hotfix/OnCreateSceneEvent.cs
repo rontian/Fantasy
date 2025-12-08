@@ -1,8 +1,35 @@
 using Fantasy.Async;
 using Fantasy.Entitas;
+using Fantasy.Entitas.Interface;
 using Fantasy.Event;
+using Fantasy.SeparateTable;
+using Fantasy.Serialize;
 
 namespace Fantasy;
+
+public sealed class SaveEntity : Entity
+{
+
+}
+
+[SeparateTable(typeof(SaveEntity), "SubSceneTestComponent")]
+public sealed class SubSceneTestComponent : Entity
+{
+    public override void Dispose()
+    {
+        Log.Debug("销毁SubScene下的SubSceneTestComponent");
+        base.Dispose();
+    }
+}
+
+public sealed class SubSceneTestComponentAwakeSystem : AwakeSystem<SubSceneTestComponent>
+{
+    protected override void Awake(SubSceneTestComponent self)
+    {
+        Log.Debug("SubSceneTestComponentAwakeSystem");
+    }
+}
+
 
 public sealed class OnCreateSceneEvent : AsyncEventSystem<OnCreateScene>
 {
@@ -16,17 +43,23 @@ public sealed class OnCreateSceneEvent : AsyncEventSystem<OnCreateScene>
     protected override async FTask Handler(OnCreateScene self)
     {
         var scene = self.Scene;
-        
+
+        await FTask.CompletedTask;
+
         switch (scene.SceneType)
         {
+            case 6666:
+            {
+                break;
+            }
             case SceneType.Addressable:
             {
-                // scene.AddComponent<AddressableManageComponent>(); 
                 _addressableSceneRunTimeId = scene.RuntimeId;
                 break;
             }
             case SceneType.Map:
             {
+                Log.Debug($"Map Scene SceneRuntimeId:{scene.RuntimeId}");
                 break;
             }
             case SceneType.Chat:
@@ -35,43 +68,45 @@ public sealed class OnCreateSceneEvent : AsyncEventSystem<OnCreateScene>
             }
             case SceneType.Gate:
             {
-                // var session = scene.GetSession(_addressableSceneRunTimeId);
-                // var sceneNetworkMessagingComponent = scene.NetworkMessagingComponent;
-                //
-                // for (int i = 0; i < 1000; i++)
-                // {
-                //     sceneNetworkMessagingComponent.SendInnerRoute(_addressableSceneRunTimeId,new G2A_TestMessage()
-                //     {
-                //         Tag = $"{i}"
-                //     });
-                // }
-                //
-                // Log.Debug($"Send G2A_TestMessage 1000");
-                
-                
-                // var tasks = new List<FTask>(2000);
-                // var session = scene.GetSession(_addressableSceneRunTimeId);
-                // var sceneNetworkMessagingComponent = scene.NetworkMessagingComponent;
-                // var g2ATestRequest = new G2A_TestRequest();
-                //
-                // async FTask Call()
-                // {
-                //     await sceneNetworkMessagingComponent.CallInnerRouteBySession(session,_addressableSceneRunTimeId,g2ATestRequest);
-                // }
-                //
-                // for (int i = 0; i < int.MaxValue; i++)
-                // {
-                //     tasks.Clear();
-                //     for (int j = 0; j < tasks.Capacity; ++j)
-                //     {
-                //         tasks.Add(Call());
-                //     }
-                //     await FTask.WaitAll(tasks);
-                // }
-                break;
+                    //单泛型参数实体测试
+                    Entity.Create<SubSceneTestComponent>(scene).AddComponent<GenericTest.TestEntity<SaveEntity>>();
+                    //双泛型参数实体测试
+                    Entity.Create<SubSceneTestComponent>(scene).AddComponent<GenericTest.TestEntity2<SaveEntity, SaveEntity>>();
+                    // var saveEntity = Entity.Create<SaveEntity>(scene);
+                    // saveEntity.AddComponent<SubSceneTestComponent>();
+                    //
+                    // await saveEntity.PersistAggregate(scene.World.Database);
+
+                    // var saveEntity = await scene.World.Database.LoadWithSeparateTables<SaveEntity>(488710241381777422);
+                    // var saveEntity = await scene.World.Database.Query<SaveEntity>(488710241381777422,true);
+                    // await saveEntity.LoadWithSeparateTables(scene.World.Database);
+                    // var a = 0;
+                    //
+                    // Log.Debug($"{saveEntity.GetComponent<SubSceneTestComponent>()!=null}");
+                    // var saveEntity = Entity.Create<SaveEntity>(scene, true, false);
+                    // saveEntity.AddComponent<SubSceneTestComponent>();
+                    // await saveEntity.PersistAggregate(scene.World.Database);
+                    // var tasks = new List<FTask>(2000);
+                    // var session = scene.GetSession(_addressableSceneRunTimeId);
+                    // var sceneNetworkMessagingComponent = scene.NetworkMessagingComponent;
+                    // var g2ATestRequest = new G2A_TestRequest();
+                    //
+                    // async FTask Call()
+                    // {
+                    //     await sceneNetworkMessagingComponent.CallInnerRouteBySession(session,_addressableSceneRunTimeId,g2ATestRequest);
+                    // }
+                    //
+                    // for (int i = 0; i < 100000000000; i++)
+                    // {
+                    //     tasks.Clear();
+                    //     for (int j = 0; j < tasks.Capacity; ++j)
+                    //     {
+                    //         tasks.Add(Call());
+                    //     }
+                    //     await FTask.WaitAll(tasks);
+                    // }
+                    break;
             }
         }
-
-        await FTask.CompletedTask;
     }
 }
